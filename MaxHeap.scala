@@ -1,4 +1,4 @@
-class MaxHeap (heapList : Vector[Int])
+class MaxHeap (heapList : Vector[Int] = Vector(0))
 
 object MaxHeap {
 
