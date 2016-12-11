@@ -16,7 +16,7 @@ class MaxHeap {
 
   def bubbleUpFunc(heapList: Vector[Int], idx: Int, k: Int,
                      idxList : Vector[Int] = Vector()) : Vector[Int] = {
-    // get indices of heap list to swap
+    // returns indices of heap list to swap
     // when inserting k into the heap
     // by attaching k at tail and bubbling up
     val parentIdx = idx/2
@@ -30,6 +30,7 @@ class MaxHeap {
 
   def insert(heapList: Vector[Int], k: Int) : Vector[Int] = {
     // insert k into correct location in a maxheap
+    // and return a balanced heap
     val tempList = heapList :+ k
     val idx = tempList.size - 1 
     val swapIdx = bubbleUpFunc(tempList, idx, k).sliding(2).toList.
@@ -42,7 +43,7 @@ class MaxHeap {
 
   def bubbleDownFunc(heapList: Vector[Int], idx: Int, 
                      idxList : Vector[Int] = Vector()) : Vector[Int] = {
-    // get indices of heap list to swap
+    // returns indices of heap list to swap
     // when deleting index idx from the heap
     // by checking for largest child and bubbling down
     val newIdxList = idxList :+ idx
