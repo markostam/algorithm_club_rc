@@ -6,9 +6,9 @@ class MaxHeap {
 
 
   def swapIndicesFunc (heapList : Vector[Int], swapIdx: Vector[Int]) : Vector[Int]= {
-  // swap values of two indices in a list 
-  // given a tuple of their indices
-  // helper for the insert/delete functions
+    // swap values of two indices in a list 
+    // given a tuple of their indices
+    // helper for the insert/delete functions
     heapList.
       updated(swapIdx(0),heapList(swapIdx(1))).
       updated(swapIdx(1),heapList(swapIdx(0)))
@@ -29,6 +29,7 @@ class MaxHeap {
   }
 
   def insert(heapList: Vector[Int], k: Int) : Vector[Int] = {
+    // insert k into correct location in a maxheap
     val tempList = heapList :+ k
     val idx = tempList.size - 1 
     val swapIdx = bubbleUpFunc(tempList, idx, k).sliding(2).toList.
@@ -41,6 +42,9 @@ class MaxHeap {
 
   def bubbleDownFunc(heapList: Vector[Int], idx: Int, 
                      idxList : Vector[Int] = Vector()) : Vector[Int] = {
+    // get indices of heap list to swap
+    // when deleting index idx from the heap
+    // by checking for largest child and bubbling down
     val newIdxList = idxList :+ idx
     val childrenIdx = Vector(idx*2, idx*2 + 1)
     val children = childrenIdx.map(x => (x, heapList.lift(x))).filterNot(_._2 == None) // 
@@ -52,6 +56,8 @@ class MaxHeap {
   }
 
   def delete(heapList: Vector[Int], idx: Int) = {
+    // delete value at idx from the maxheap
+    // and return a balanced heap
     val swapIdx = bubbleDownFunc(heapList, idx).sliding(2).toList.
       map(x => if (x.size < 2) Vector(x(0),x(0)) else x)
     val finalDeleteIdx = swapIdx.flatten.last
@@ -59,11 +65,13 @@ class MaxHeap {
       zipWithIndex.filter(_._2 != finalDeleteIdx).map(_._1)
   }
 
-  def populateByMax (highVal : Int) = {
-    (1 to highVal).foldLeft(heapList)(insert)
+  def populateByMax (k : Int) = {
+    // populate the heap using a range from 1 to k
+    (1 to k).foldLeft(heapList)(insert)
   }
 
   def populateBySeq (sequence : Seq[Int]) = {
+    // populate the heap using a sequence
     sequence.foldLeft(heapList)(insert)
   }
 }
