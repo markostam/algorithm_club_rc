@@ -1,9 +1,9 @@
+class MaxHeap (heapList : Vector[Int])
 
-class MaxHeap {
+object MaxHeap {
 
   // constructor
   val heapList : Vector[Int] = Vector(0)
-
 
   def swapIndicesFunc (heapList : Vector[Int], swapIdx: Vector[Int]) : Vector[Int]= {
     // swap values of two indices in a list 
@@ -68,7 +68,7 @@ class MaxHeap {
 
   def populateByMax (k : Int) = {
     // populate the heap using a range from 1 to k
-    (1 to k).foldLeft(heapList)(insert)
+    (1 to k).par.toStream.foldLeft(heapList)(insert)
   }
 
   def populateBySeq (sequence : Seq[Int]) = {
