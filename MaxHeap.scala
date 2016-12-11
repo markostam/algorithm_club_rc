@@ -51,14 +51,13 @@ class MaxHeap {
   def bubbleDownFunc(heapList: Vector[Int], idx: Int, 
                      idxList : Vector[Int] = Vector()) : Vector[Int] = {
     val newIdxList = idxList :+ idx
-    val childrenIdx = Vector(idx*2 + 1, idx*2 + 2)
+    val childrenIdx = Vector(idx*2, idx*2 + 1)
     val children = childrenIdx.map(x => (x, heapList.lift(x))).filterNot(_._2 == None) // 
     if (!children.isEmpty) {
       val maxChild = children.maxBy(_._2)._1
-      bubbleDownFunc(heapList,idx,newIdxList)
+      bubbleDownFunc(heapList,maxChild,newIdxList)
       /* if (maxChild > heapList(idx)) {
-        val idx = children.maxBy(_._2)._1
-        bubbleDownFunc(heapList,idx,newIdxList)
+        bubbleDownFunc(heapList,maxChild,newIdxList)
       }
       else newIdxList*/
     }
@@ -66,10 +65,11 @@ class MaxHeap {
   }
 
   def delete(heapList: Vector[Int], idx: Int) = {
-    val tempList = heapList.zipWithIndex.filter(_._2 != idx).map(_._1)
     val swapIdx = bubbleDownFunc(heapList, idx).sliding(2).toList.
       map(x => if (x.size < 2) Vector(x(0),x(0)) else x)
-    swapIdx.foldLeft(tempList)(swapIndicesFunc)
+    val finalDeleteIdx = swapIdx.flatten.last
+    swapIdx.foldLeft(heapList)(swapIndicesFunc).
+      zipWithIndex.filter(_._2 != finalDeleteIdx).map(_._1)
   }
 
 }
