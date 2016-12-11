@@ -1,42 +1,77 @@
 
 class MaxHeap {
   // constructor
-  val heapList : List[Int] = List(0)
+  val heapList : Vector[Int] = Vector(0)
   val currentSize : Int = 0
 
   // log base 2 function
   val log2 = (x: Double) => math.log10(x)/math.log10(2.0)
 
   // bubble up function
-  // uses funky math to get where 
-  def bubbleUpFunc(newSize :Int, doNotSwap: Int) = {
+  // uses idxFunc to get indices that will need to be swapped 
+  def bubbleUpFunc(newSize :Int, doNotSwap: Int) : Vector[Vector[Int]] = {
     val maxNumOfIdx = log2(newSize).floor.toInt
     val range = (0 to maxNumOfIdx)
-    // func to convert nubmer of indexes to actual indexes
+    // func to convert range of indices to actual indices
     val idxFunc = (i: Int, n: Int) => (math.pow(0.5,i)*n).floor.toInt
     val indices = range.map(x => idxFunc(x,newSize)).toList
     // drop indices that correspond to values > new value k
     val filtIndices = indices.filter(_ > doNotSwap)
-    if (filtIndices.size < 2) List(List(0,0)) else filtIndices.sliding(2).toList
+    if (filtIndices.size < 2) Vector(Vector(0,0)) 
+      else filtIndices.sliding(2).toVector.map(_.toVector)
   }
 
   // swap values of two indices in a list given a tuple of their indices
   // helper for the insert function
-  def swapIndicesFunc (heapList : List[Int], swapIdx: List[Int]) = {
+  def swapIndicesFunc (heapList : Vector[Int], swapIdx: Vector[Int]) : Vector[Int]= {
     heapList.
       updated(swapIdx(0),heapList(swapIdx(1))).
       updated(swapIdx(1),heapList(swapIdx(0)))
   }
 
-  def insert(k: Int, heapList: List[Int]) = {
+  def insert(heapList: Vector[Int], k: Int) : Vector[Int] = {
     val tempList = heapList :+ k
     val newSize = heapList.size
     // get indices of values > new value k
     val doNotSwap = heapList.zipWithIndex.filter(x => x._1 > k).map(_._2).
       reverse.lift(0).getOrElse(0)
-    val swapIdx = bubbleUpFunc(newSize, doNotSwap)
+    // tuples of indices to swap
+    val swapIdx = bubbleUpFunc(newSize, doNotSwap) 
     swapIdx.foldLeft(tempList)(swapIndicesFunc) 
   }
+
+  def populateByMax (highVal : Int) {
+    (1 to highVal).foldLeft(heapList)(insert)
+  }
+
+  def populateBySeq (sequence : Seq[Int]) {
+    sequence.foldLeft(heapList)(insert)
+  }
+
+  def bubbleDownFunc(heapList: Vector[Int], idx: Int, 
+                     idxList : Vector[Int] = Vector()) : Vector[Int] = {
+    val newIdxList = idxList :+ idx
+    val childrenIdx = Vector(idx*2 + 1, idx*2 + 2)
+    val children = childrenIdx.map(x => (x, heapList.lift(x))).filterNot(_._2 == None) // 
+    if (!children.isEmpty) {
+      val maxChild = children.maxBy(_._2)._1
+      bubbleDownFunc(heapList,idx,newIdxList)
+      /* if (maxChild > heapList(idx)) {
+        val idx = children.maxBy(_._2)._1
+        bubbleDownFunc(heapList,idx,newIdxList)
+      }
+      else newIdxList*/
+    }
+    else newIdxList
+  }
+
+  def delete(heapList: Vector[Int], idx: Int) = {
+    val tempList = heapList.zipWithIndex.filter(_._2 != idx).map(_._1)
+    val swapIdx = bubbleDownFunc(heapList, idx).sliding(2).toList.
+      map(x => if (x.size < 2) Vector(x(0),x(0)) else x)
+    swapIdx.foldLeft(tempList)(swapIndicesFunc)
+  }
+
 }
 
 /*
