@@ -41,19 +41,32 @@ def makeChildren (parent: Node, m: DenseMatrix[Float], goal: (Float,Float)) = {
 }
 
 
-def aStar (openList : scala.collection.mutable.PriorityQueue, 
+def aStar (openList : scala.collection.mutable.PriorityQueue[Node], 
            closedList :List[Node], m: DenseMatrix[Float],
-           start: (Int,Int), goal: (Int,Int) = {
-  
+           start: (Int,Int), goal: (Float,Float)) = {
   val q = openList.dequeue()
-  val childern = makeChildren(q,m,goal)
-  val testGoal = childern.filter(_.coord == goal)
-  if (testGoal.isEmpty) {
-    // stop search and return shortest path
+  val children = makeChildren(q,m,goal)
+  if (children.exists(_.coord == goal)) {
+    // return shortest path
+    closedList
   }
   else {
-    
+    val testChildren = children.filterNot(x => openList.
+      exists(y => x.coord == y.coord & x.cost > y.cost)).
+      filterNot(x => closedList.
+      exists(y => x.coord == y.coord & x.cost > y.cost))
+    testChildren.foreach(x => openList.enqueue(x))
+    openList
   }
-
-
+  closedList :+ q
 }
+
+xs.map(x => ys.map(y => (x,y))).flatten.
+filter(x => x._1.coor == x._2.coor & x._1.f < x._2.f).
+map(_._1)
+
+xs.filterNot(x => ys.exits(y => x.coor == y.coor & x.f > y.f))
+
+// val (testChildren,newChildren) = children.partition(x => openList.toList.
+//  map(_.coord).contains(x.coord))
+
