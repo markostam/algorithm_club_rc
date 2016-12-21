@@ -38,7 +38,8 @@ case class Astar (start : (Int,Int), goal : (Int,Int),
       parent.g+l2(parent.coord,newCoord),l2(goal,newCoord)))
   }
 
-  def createPath (node: Node, allVisited:List[Node], 
+  @annotation.tailrec
+  final def createPath (node: Node, allVisited:List[Node], 
                   oldPath: List[(Double,Double)] = List()) : List[(Int,Int)] = {
     // 
     val newList : List[(Double,Double)] = List(node.coord).
@@ -46,12 +47,16 @@ case class Astar (start : (Int,Int), goal : (Int,Int),
     val newPath = oldPath ++ newList
     if (node.g == 0.0) newPath.map(x => (x._1.toInt,x._2.toInt)).reverse
     else {
-      val nextNode = allVisited.filter(_.coord == node.parent)(0)
+      // choose nextNode based on 
+      //val dummyNode = Node((0,0),(0,0),Double.MaxValue,Double.MaxValue)
+      val nextNode = allVisited.filter(_.coord == node.parent).head
+        //foldLeft(dummyNode)((b:Node,a:Node) => if(b.g < a.g) b else a)
       createPath(nextNode,allVisited,newPath)
     }
   }
 
-  def aStar (openList : scala.collection.mutable.PriorityQueue[Node], 
+  @annotation.tailrec
+  final def aStar (openList : scala.collection.mutable.PriorityQueue[Node], 
              closedList : List[Node], m: DenseMatrix[Double],
              start: (Int,Int), goal: (Int,Int)) : DenseMatrix[Double]= {
     val q = openList.dequeue()
