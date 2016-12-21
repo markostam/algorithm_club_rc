@@ -19,7 +19,7 @@ case class Astar (start : (Int,Int), goal : (Int,Int),
   // we want a min heap of Nodes ordered by cost
   def nodeOrder (n: Node) = -n.cost
   val openList = scala.collection.mutable.PriorityQueue.empty(Ordering.by(nodeOrder))
-  val closedList : List[Node] = List()
+  val closedList : scala.collection.parallel.immutable.ParSeq[Node] = List().par  
   val firstNode = Node(start,start,0,l2(start,goal))
   openList.enqueue(firstNode)
 
@@ -39,7 +39,7 @@ case class Astar (start : (Int,Int), goal : (Int,Int),
   }
 
   @annotation.tailrec
-  final def createPath (node: Node, allVisited:List[Node], 
+  final def createPath (node: Node, allVisited: scala.collection.parallel.immutable.ParSeq[Node], 
                   oldPath: List[(Double,Double)] = List()) : List[(Int,Int)] = {
     // 
     val newList : List[(Double,Double)] = List(node.coord).
@@ -57,14 +57,15 @@ case class Astar (start : (Int,Int), goal : (Int,Int),
 
   @annotation.tailrec
   final def aStar (openList : scala.collection.mutable.PriorityQueue[Node], 
-             closedList : List[Node], m: DenseMatrix[Double],
-             start: (Int,Int), goal: (Int,Int)) : DenseMatrix[Double]= {
+             closedList : scala.collection.parallel.immutable.ParSeq[Node], 
+             m: DenseMatrix[Double], start: (Int,Int), 
+             goal: (Int,Int)) : DenseMatrix[Double]= {
     val q = openList.dequeue()
     val children = makeChildren(q,m,goal)
     // if the goal is in the children, return shortest path
     if (children.exists(_.coord == goal)) {
       val goalNode = children.filter(_.coord == goal).head
-      val allVisited = closedList ++ openList.toList ++ children ++ List(q)
+      val allVisited = closedList ++ openList.toList.par ++ children.par ++ List(q).par
       val shortestPath = createPath(goalNode,allVisited)
       allVisited.map(_.coord).foreach(x => m(x) = 8.8.toDouble)
       shortestPath.foreach(x => m(x) = 1.1.toDouble)
@@ -77,7 +78,7 @@ case class Astar (start : (Int,Int), goal : (Int,Int),
         filterNot(x => closedList.
         exists(y => x.coord == y.coord & x.cost > y.cost))
       testChildren.foreach(x => openList.enqueue(x))
-      val newClosedList : List[Node] = closedList ++ List(q)
+      val newClosedList : scala.collection.parallel.immutable.ParSeq[Node] = closedList ++ List(q).par
       aStar(openList,newClosedList,m,start,goal)
     }
   }
