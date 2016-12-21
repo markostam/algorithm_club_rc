@@ -1,9 +1,8 @@
-case class MaxHeap (heap : Vector[Int] = Vector(0))
+//case class MaxHeap (heap : Vector[Int] = Vector(0))
 
-object MaxHeap {
+case class MaxHeap (heapList : Vector[Int] = Vector(0)) {
 
   // constructor
-  val heapList : Vector[Int] = Vector(0)
 
   def swapIndicesFunc (heapList : Vector[Int], swapIdx: Vector[Int]) : Vector[Int]= {
     // swap values of two indices in a list 
