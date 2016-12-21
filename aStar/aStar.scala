@@ -14,27 +14,25 @@ case class Astar (start : (Int,Int), goal : (Int,Int),
              map(x => math.pow(toDouble(x._1)-toDouble(x._2),2)).
              reduce(_+_),0.5).toDouble
   }
+  
   // fuction to order the heap by
   // we want a min heap of Nodes ordered by cost
   def nodeOrder (n: Node) = -n.cost
   val openList = scala.collection.mutable.PriorityQueue.empty(Ordering.by(nodeOrder))
-  val closedList : List[Node]= List()
-  //val goal = (8,3)
-  //val start = (3,11)
-  //val m = DenseMatrix.zeros[Double](12,12)
+  val closedList : List[Node] = List()
   val firstNode = Node(start,start,0,l2(start,goal))
   openList.enqueue(firstNode)
 
   def makeChildren (parent: Node, m: DenseMatrix[Double], 
                     goal: (Int,Int)) : List[Node] = {
-    // gets neighbors of a point in a DenseMatrix
+    // get neighbors of a point in a DenseMatrix
     val (r,c) = parent.coord
     val rowRange = (max((r-1), 0) to min((r+1), m.rows-1))
     val colRange = (max((c-1), 0) to min((c+1), m.cols-1))
     val indices = rowRange.map(x => colRange.map(y => (x,y))).
       flatten.toList.filter(_ != parent.coord)
-    // convert those neighbors to child nodes 
-    // with correctly populated parameters
+    // convert those matrix space neighbors to 
+    // child nodes and populate parameters
     indices.
       map(newCoord => Node(parent.coord,newCoord,
       parent.g+l2(parent.coord,newCoord),l2(goal,newCoord)))
@@ -42,6 +40,7 @@ case class Astar (start : (Int,Int), goal : (Int,Int),
 
   def createPath (node: Node, allVisited:List[Node], 
                   oldPath: List[(Double,Double)] = List()) : List[(Int,Int)] = {
+    // 
     val newList : List[(Double,Double)] = List(node.coord).
       map(x => (x._1.toDouble,x._2.toDouble))
     val newPath = oldPath ++ newList
@@ -60,7 +59,6 @@ case class Astar (start : (Int,Int), goal : (Int,Int),
     // if the goal is in the children, return shortest path
     if (children.exists(_.coord == goal)) {
       val goalNode = children.filter(_.coord == goal).head
-      println("goalNode = " + goalNode)
       val allVisited = closedList ++ openList.toList ++ children ++ List(q)
       val shortestPath = createPath(goalNode,allVisited)
       allVisited.map(_.coord).foreach(x => m(x) = 8.8.toDouble)
